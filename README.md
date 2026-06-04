@@ -1,28 +1,52 @@
-# parking_sim (ROS 2)
+# ROS2 Parking Simulator
 
-A small autonomous parking demo for TurtleBot3 in Gazebo.
+A simple autonomous parking simulator built with ROS2 Jazzy and Pygame on Windows 11 (WSL2).
 
-## What it does
-The node reads `/odom`, drives the robot using `/cmd_vel`, and parks it at a target pose with a simple go-to-goal controller.
+## Features
+- Autonomous car navigation to free parking spots
+- Pygame visualizer with real-time status panel and car shapes
+- Color-coded parking spots (green = free, red = occupied, yellow = target)
+- Auto-reset and loop — car teleports back to center and finds the next free spot
+- Live status panel showing position, target, and park count
 
-## How to run on The Construct
-1. Open your rosject.
-2. In one terminal, start Gazebo:
+## Requirements
+- Windows 11 with WSL2
+- Ubuntu 24.04
+- ROS2 Jazzy
+- Python 3.12
+- pygame (`pip install pygame --break-system-packages`)
 
+## Setup
 ```bash
-export TURTLEBOT3_MODEL=burger
-ros2 launch turtlebot3_gazebo empty_world.launch.py
-```
-
-3. In another terminal, run the controller:
-
-```bash
+cd ~/ros2_ws/src
+# copy this folder here, then:
 cd ~/ros2_ws
 colcon build --packages-select parking_sim
 source install/setup.bash
-ros2 run parking_sim parking_controller --ros-args -p target_x:=1.5 -p target_y:=0.0 -p target_yaw:=0.0
 ```
 
-## Notes
-- The TurtleBot3 Gazebo launch command above follows the official TurtleBot3 simulation docs.
-- The controller publishes `geometry_msgs/msg/Twist` to `/cmd_vel` and uses odometry feedback from `/odom`.
+## How to Run
+Open 3 terminals (all in WSL2):
+
+**Terminal 1:**
+```bash
+ros2 run turtlesim turtlesim_node
+```
+
+**Terminal 2:**
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 run parking_sim parking_sim_node
+```
+
+**Terminal 3:**
+```bash
+source ~/ros2_ws/install/setup.bash
+ros2 run parking_sim visualizer
+```
+
+## How it works
+- The ROS2 node subscribes to `/turtle1/pose` and publishes velocity commands to `/turtle1/cmd_vel`
+- It calculates the angle and distance to the target parking spot and drives toward it
+- Once parked, it waits 2 seconds, teleports back to the start, and finds the next free spot
+- The Pygame visualizer subscribes to `/parking_status` and renders everything in real time
